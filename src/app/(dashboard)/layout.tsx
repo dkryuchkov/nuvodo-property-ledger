@@ -22,8 +22,8 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-slate-50">
-        <div className="w-64 border-r bg-white p-6 space-y-4">
+      <div className="flex h-screen bg-background">
+        <div className="w-64 border-r bg-card p-6 space-y-4">
           <Skeleton className="h-10 w-32" />
           <div className="space-y-2 pt-8">
             <Skeleton className="h-12 w-full" />
@@ -46,7 +46,7 @@ export default function DashboardLayout({
   if (!user) return null;
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-8">
         {children}

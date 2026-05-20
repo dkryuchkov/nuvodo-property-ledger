@@ -138,9 +138,9 @@ export default function DocumentsPage() {
       {loading ? (
         <Skeleton className="h-[400px] w-full" />
       ) : (
-        <div className="rounded-md border bg-white overflow-hidden">
+        <div className="rounded-md border bg-card overflow-hidden">
           <Table>
-            <TableHeader className="bg-slate-50">
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>File Name</TableHead>
                 <TableHead>Property</TableHead>

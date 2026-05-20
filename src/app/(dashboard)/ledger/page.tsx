@@ -180,7 +180,7 @@ function LedgerContent() {
 
               <div className="space-y-2">
                 <p className="text-slate-500 text-xs uppercase tracking-wider font-bold">Tax Details</p>
-                <div className="bg-slate-50 p-3 rounded-lg flex justify-between items-center text-sm">
+                <div className="bg-muted p-3 rounded-lg flex justify-between items-center text-sm">
                   <span>{selectedTransaction.taxCode || "No Tax Code"}</span>
                   <span className="font-mono">{new Intl.NumberFormat('en-US', { style: 'currency', currency: selectedTransaction.currency }).format(selectedTransaction.taxAmount)}</span>
                 </div>
@@ -189,7 +189,7 @@ function LedgerContent() {
               <div className="space-y-3">
                 <p className="text-slate-500 text-xs uppercase tracking-wider font-bold">Source Document</p>
                 {selectedTransaction.receiptUrl ? (
-                  <div className="border rounded-lg p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer border-blue-100 bg-blue-50/30">
+                  <div className="border rounded-lg p-4 flex items-center justify-between hover:bg-muted transition-colors cursor-pointer border-blue-500/20 bg-blue-500/5">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                         <FileText className="w-5 h-5" />

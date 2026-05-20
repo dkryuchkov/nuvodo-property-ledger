@@ -42,8 +42,8 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50 p-4">
-      <Card className="w-full max-w-md shadow-lg border-slate-200">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+      <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="p-3 bg-blue-100 text-blue-600 rounded-2xl">
@@ -62,7 +62,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4">
           <Button 
             variant="outline" 
-            className="w-full h-12 text-base border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all flex items-center justify-center gap-3"
+            className="w-full h-12 text-base border-input hover:bg-accent hover:text-accent-foreground transition-all flex items-center justify-center gap-3"
             onClick={handleLogin}
             disabled={isLoggingIn}
           >

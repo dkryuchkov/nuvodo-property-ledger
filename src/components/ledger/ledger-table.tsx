@@ -32,9 +32,9 @@ export function LedgerTable({ transactions, onRowClick }: LedgerTableProps) {
   };
 
   return (
-    <div className="rounded-md border bg-white overflow-hidden">
+    <div className="rounded-md border bg-card overflow-hidden">
       <Table>
-        <TableHeader className="bg-slate-50">
+        <TableHeader className="bg-muted/50">
           <TableRow>
             <TableHead className="w-[100px]">Date</TableHead>
             <TableHead>Property</TableHead>
@@ -57,7 +57,7 @@ export function LedgerTable({ transactions, onRowClick }: LedgerTableProps) {
             transactions.map((transaction) => (
               <TableRow 
                 key={transaction.id} 
-                className="cursor-pointer hover:bg-slate-50 group"
+                className="cursor-pointer hover:bg-muted/50 group"
                 onClick={() => onRowClick(transaction)}
               >
                 <TableCell className="font-medium text-xs">

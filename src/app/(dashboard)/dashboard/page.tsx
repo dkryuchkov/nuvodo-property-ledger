@@ -89,11 +89,11 @@ export default function DashboardPage() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        <Button variant="ghost" size="sm" className="bg-white border text-xs">All NZ</Button>
-        <Button variant="ghost" size="sm" className="bg-white border text-xs">All AU</Button>
-        <Button variant="ghost" size="sm" className="bg-white border text-xs">All UK</Button>
-        <Button variant="ghost" size="sm" className="bg-white border text-xs text-orange-600 border-orange-200 hover:bg-orange-50">Has Review Items</Button>
-        <Button variant="ghost" size="sm" className="bg-white border text-xs text-blue-600 border-blue-200 hover:bg-blue-50">Has Drafts</Button>
+        <Button variant="ghost" size="sm" className="bg-card border text-xs">All NZ</Button>
+        <Button variant="ghost" size="sm" className="bg-card border text-xs">All AU</Button>
+        <Button variant="ghost" size="sm" className="bg-card border text-xs">All UK</Button>
+        <Button variant="ghost" size="sm" className="bg-card border text-xs text-orange-600 border-orange-200 hover:bg-orange-500/10">Has Review Items</Button>
+        <Button variant="ghost" size="sm" className="bg-card border text-xs text-blue-600 border-blue-200 hover:bg-blue-500/10">Has Drafts</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
