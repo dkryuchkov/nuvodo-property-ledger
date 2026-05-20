@@ -1,38 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "./firebase-admin";
-import { UserRole } from "@/types";
+import { auth } from "@/auth";
 
-export async function verifyAuth(req: NextRequest) {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+export async function verifyAuth() {
+  const session = await auth();
+  if (!session?.accessToken) {
     return null;
   }
-
-  if (!adminAuth) {
-    console.warn("adminAuth not initialized");
-    return null;
-  }
-
-  const token = authHeader.split("Bearer ")[1];
-  try {
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    return decodedToken;
-  } catch (error) {
-    console.error("Auth verification failed", error);
-    return null;
-  }
+  return session;
 }
 
 export function apiError(message: string, status: number = 400) {
-  return NextResponse.json({ error: message }, { status });
+  return new Response(JSON.stringify({ error: message }), { 
+    status,
+    headers: { "Content-Type": "application/json" }
+  });
 }
 
 export function apiSuccess(data: any) {
-  return NextResponse.json(data);
-}
-
-// Mock role check for now - in production this would query Firestore user_roles
-export async function checkRole(uid: string, requiredRoles: UserRole[]) {
-  // TODO: Implement actual RBAC from Firestore
-  return true;
+  return new Response(JSON.stringify(data), {
+    headers: { "Content-Type": "application/json" }
+  });
 }

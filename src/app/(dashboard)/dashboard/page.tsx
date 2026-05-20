@@ -32,12 +32,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const idToken = await user?.getIdToken();
-        const res = await fetch("/api/properties", {
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-          },
-        });
+        const res = await fetch("/api/properties");
         if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
         setProperties(data);

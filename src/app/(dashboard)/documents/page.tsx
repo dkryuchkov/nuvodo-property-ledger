@@ -41,9 +41,8 @@ export default function DocumentsPage() {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const idToken = await user?.getIdToken();
         const [propsRes, filesRes] = await Promise.all([
-          fetch("/api/properties", { headers: { Authorization: `Bearer ${idToken}` } }),
+          fetch("/api/properties"),
           // Mocking the files endpoint for now
           Promise.resolve({ ok: true, json: () => Promise.resolve([
             {

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase";
+import React, { createContext, useContext } from "react";
+import { SessionProvider, useSession, signIn, signOut } from "next-auth/react";
 
 interface AuthContextType {
-  user: User | null;
+  user: any;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -13,47 +12,30 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!auth) {
-      setLoading(false);
-      return;
-    }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+function AuthProviderInner({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
+  const loading = status === "loading";
 
   const loginWithGoogle = async () => {
-    if (!auth) throw new Error("Firebase Auth not initialized");
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error("Login failed", error);
-      throw error;
-    }
+    await signIn("google");
   };
 
   const logout = async () => {
-    if (!auth) throw new Error("Firebase Auth not initialized");
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Logout failed", error);
-      throw error;
-    }
+    await signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user: session?.user, loading, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthProviderInner>{children}</AuthProviderInner>
+    </SessionProvider>
   );
 }
 

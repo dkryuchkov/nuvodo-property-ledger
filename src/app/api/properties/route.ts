@@ -1,16 +1,15 @@
 import { NextRequest } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { getFirestoreClient } from "@/lib/firestore";
 import { verifyAuth, apiError, apiSuccess } from "@/lib/api-utils";
 import { Property } from "@/types";
 
 export async function GET(req: NextRequest) {
-  const user = await verifyAuth(req);
-  if (!user) return apiError("Unauthorized", 401);
-
-  if (!adminDb) return apiError("Database not initialized", 500);
+  const session = await verifyAuth();
+  if (!session) return apiError("Unauthorized", 401);
 
   try {
-    const propertiesSnapshot = await adminDb
+    const db = await getFirestoreClient(session.accessToken!);
+    const propertiesSnapshot = await db
       .collection("property_portfolio/portfolio/properties")
       .get();
 

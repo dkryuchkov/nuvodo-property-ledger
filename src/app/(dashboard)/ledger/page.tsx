@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { Transaction, Property } from "@/types";
 import { useAuth } from "@/context/auth-context";
 import { LedgerTable } from "@/components/ledger/ledger-table";
@@ -27,70 +28,77 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 
-export default function LedgerPage() {
+function LedgerContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [filters, setFilters] = useState({});
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const idToken = await user?.getIdToken();
-        const [propsRes, transRes] = await Promise.all([
-          fetch("/api/properties", { headers: { Authorization: `Bearer ${idToken}` } }),
-          fetch("/api/ledger/query", { 
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${idToken}` 
-            },
-            body: JSON.stringify({}),
-          })
-        ]);
-
-        if (!propsRes.ok || !transRes.ok) throw new Error("Failed to fetch data");
-        
-        const propsData = await propsRes.json();
-        const transData = await transRes.json();
-        
-        setProperties(propsData);
-        setTransactions(transData);
-      } catch (error) {
-        console.error(error);
-        toast.error("Error loading ledger data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user) fetchInitialData();
-  }, [user]);
-
-  const handleFilterChange = async (newFilters: any) => {
+  const fetchTransactions = useCallback(async (currentFilters: any) => {
     setLoading(true);
-    setFilters(newFilters);
     try {
-      const idToken = await user?.getIdToken();
       const res = await fetch("/api/ledger/query", { 
         method: "POST",
         headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}` 
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(newFilters),
+        body: JSON.stringify(currentFilters),
       });
-      if (!res.ok) throw new Error("Failed to fetch filtered transactions");
+      if (!res.ok) throw new Error("Failed to fetch transactions");
       const data = await res.json();
       setTransactions(data);
     } catch (error) {
       console.error(error);
-      toast.error("Error applying filters");
+      toast.error("Error loading transactions");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const res = await fetch("/api/properties");
+        if (!res.ok) throw new Error("Failed to fetch properties");
+        const propsData = await res.json();
+        setProperties(propsData);
+
+        // Get filters from URL
+        const urlFilters: any = {};
+        searchParams.forEach((value, key) => {
+          if (key === "propertyIds" || key === "statuses" || key === "types") {
+            urlFilters[key] = [value];
+          } else {
+            urlFilters[key] = value;
+          }
+        });
+
+        await fetchTransactions(urlFilters);
+      } catch (error) {
+        console.error(error);
+        toast.error("Error loading initial data");
+      }
+    };
+
+    if (user) fetchInitialData();
+  }, [user, searchParams, fetchTransactions]);
+
+  const handleFilterChange = (newFilters: any) => {
+    const params = new URLSearchParams();
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach(v => params.append(key, v));
+        } else {
+          params.set(key, value as string);
+        }
+      }
+    });
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -233,5 +241,13 @@ export default function LedgerPage() {
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+export default function LedgerPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-[600px] w-full" />}>
+      <LedgerContent />
+    </Suspense>
   );
 }

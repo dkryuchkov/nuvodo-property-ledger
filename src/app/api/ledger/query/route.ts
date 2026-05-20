@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { adminDb } from "@/lib/firebase-admin";
+import { getFirestoreClient } from "@/lib/firestore";
 import { verifyAuth, apiError, apiSuccess } from "@/lib/api-utils";
 import { Transaction } from "@/types";
 import { z } from "zod";
@@ -16,16 +16,15 @@ const querySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const user = await verifyAuth(req);
-  if (!user) return apiError("Unauthorized", 401);
-
-  if (!adminDb) return apiError("Database not initialized", 500);
+  const session = await verifyAuth();
+  if (!session) return apiError("Unauthorized", 401);
 
   try {
     const body = await req.json();
     const filters = querySchema.parse(body);
 
-    let query: FirebaseFirestore.Query = adminDb.collection("ledger_transactions");
+    const db = await getFirestoreClient(session.accessToken!);
+    let query: FirebaseFirestore.Query = db.collection("ledger_transactions");
 
     if (filters.propertyIds && filters.propertyIds.length > 0) {
       query = query.where("propertyId", "in", filters.propertyIds);
@@ -47,10 +46,6 @@ export async function POST(req: NextRequest) {
       query = query.where("type", "in", filters.types);
     }
 
-    // Firestore doesn't support multiple "in" queries easily. 
-    // For categories, we might need to filter client-side or use a different indexing strategy if there are many.
-    // For now, we'll keep it simple and limit to 10 property/status/type filters.
-
     const snapshot = await query.limit(filters.limit).get();
 
     let transactions: Transaction[] = snapshot.docs.map((doc) => {
@@ -61,7 +56,6 @@ export async function POST(req: NextRequest) {
       } as Transaction;
     });
 
-    // Client-side filtering for complex cases or Firestore limitations
     if (filters.categoryIds && filters.categoryIds.length > 0) {
       transactions = transactions.filter(t => filters.categoryIds!.includes(t.categoryId));
     }
