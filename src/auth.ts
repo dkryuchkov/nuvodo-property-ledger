@@ -11,10 +11,18 @@ function normalizeUrl(value: string | undefined): string | undefined {
     return undefined;
   }
 
-  const url = new URL(trimmed);
-  const path = url.pathname.replace(/\/+$/, "");
+  try {
+    const url = new URL(trimmed);
+    const path = url.pathname.replace(/\/+$/, "");
 
-  return `${url.origin}${path === "/" ? "" : path}`;
+    return `${url.origin}${path === "/" ? "" : path}`;
+  } catch (error) {
+    console.warn("Ignoring invalid Auth.js URL environment value", {
+      value: trimmed,
+      error,
+    });
+    return undefined;
+  }
 }
 
 function toAuthBaseUrl(value: string | undefined): string | undefined {
